@@ -1,0 +1,15 @@
+estos son unos comandos para crear script en debian
+para poder escribir un script se debe crear un archivo name.sh
+tambien se pueden identificar con el encabezado:
+#!/bin/bash ; #!/bin/ksh
+para python es:
+	#!/usr/bin/env python
+el #! recibe le nombre de shebang que inician los programas ejecutables al comienzo.
+al guardarlo en el directorio que deseas (la opcion mas comun es guardarlo en /home/nombre_usuario). Existen varios modos de ejecutarlo al inicio y uno de ellos es mover el archivo a la carpeta init.d con el comando:
+	sudo mv /home/tu_usuario/nombre_script.sh /etc/init.d/
+luego es necesario darle permiso de ejecucion
+	sudo chmod +x /etc/init.d/nombre_script.sh
+luego actualizaremos el rc.d
+	sudo update-rc.d nombre_script.sh defaults
+si queremos desintalar solo ejecutamos:
+	rm /etc/init.d/nombre_script.sh
