@@ -1,0 +1,67 @@
+#include <Wire.h>
+#define address 0x68
+int var = 0;
+int x, y, z;
+char rec;
+void setup() {
+  Serial.begin(9600);
+  Wire.begin();
+  Wire.beginTransmission(address);
+  Wire.write(0x6b);
+  Wire.write(0x00);
+  Wire.endTransmission();
+}
+void loop() {
+  if (Serial.available()) {
+    rec = Serial.read();
+    if (rec = 'hm') {
+      sensor();
+    }
+    //else if(rec==""){//sensor presion
+    //sensor----()}
+    else {
+      Serial.println("no recive");
+    }
+  }
+  delay(250);
+}
+
+void sensor() {
+  Wire.beginTransmission(address);
+  Wire.write(0x3b);
+  Wire.endTransmission();
+  Wire.requestFrom(address, 6);
+  if (6 <= Wire.available()) {
+    x = Wire.read() << 8;
+    x |= Wire.read();
+    y = Wire.read() << 8;
+    y |= Wire.read();
+    z = Wire.read() << 8;
+    z |= Wire.read();
+  }
+  
+  envio_datos();
+  delay(250);
+}
+
+void envio_datos() {
+
+  rec = Serial.read();
+  if (rec = 'x') {
+    //Serial.print("x");
+    Serial.println(x);
+  }
+  else if (rec = 'y') {
+    //Serial.print("y");
+    Serial.println(y);
+  }
+  else if (rec = 'z') {
+    //Serial.print("z");
+    Serial.println(z);
+  }
+  else {
+    Serial.println("error");
+  }
+  delay(250);
+}
+
