@@ -2,6 +2,8 @@
 #define address 0x68
 int var = 0;
 int x, y, z;
+float xD, yD, zD;
+//String raec="";
 char rec;
 void setup() {
   Serial.begin(9600);
@@ -12,18 +14,22 @@ void setup() {
   Wire.endTransmission();
 }
 void loop() {
-  if (Serial.available()) {
-    rec = Serial.read();
-    if (rec = 'hm') {
-      sensor();
-    }
-    //else if(rec==""){//sensor presion
-    //sensor----()}
-    else {
-      Serial.println("no recive");
-    }
-  }
-  delay(250);
+  sensor();
+  float xH = atan2(y, x); 
+float yH = atan2(z, x); 
+float zH = atan2(z, y);
+if(xH < 0) xH += 2*PI; 
+if(xH > 2*PI) xH -= 2*PI; 
+if(yH < 0) yH += 2*PI; 
+if(yH > 2*PI) yH -= 2*PI; 
+if(zH < 0) zH += 2*PI; 
+if(zH > 2*PI) zH -= 2*PI; 
+xD = xH * 180/M_PI; 
+yD = yH * 180/M_PI; 
+zD = zH * 180/M_PI;
+
+  envio_datos();
+  
 }
 
 void sensor() {
@@ -39,29 +45,18 @@ void sensor() {
     z = Wire.read() << 8;
     z |= Wire.read();
   }
+
   
-  envio_datos();
   delay(250);
 }
 
 void envio_datos() {
-
-  rec = Serial.read();
-  if (rec = 'x') {
-    //Serial.print("x");
-    Serial.println(x);
-  }
-  else if (rec = 'y') {
-    //Serial.print("y");
-    Serial.println(y);
-  }
-  else if (rec = 'z') {
-    //Serial.print("z");
-    Serial.println(z);
-  }
-  else {
-    Serial.println("error");
-  }
+  Serial.print("x");
+  Serial.println(xD);
+  Serial.print("y");
+  Serial.println(yD);
+  Serial.print("z");
+  Serial.println(zD);
   delay(250);
 }
 
