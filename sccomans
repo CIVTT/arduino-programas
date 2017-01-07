@@ -13,3 +13,19 @@ luego actualizaremos el rc.d
 	sudo update-rc.d nombre_script.sh defaults
 si queremos desintalar solo ejecutamos:
 	rm /etc/init.d/nombre_script.sh
+Ahora si en el caso de que el comando update-rc.d te muestre el siguiente mensaje:
+	insserv: warning: script 'name_script' missing LSB tags and overrides
+se tendra que agregar en el scritp:
+	#!/bin/bash
+	### BEGIN INIT INFO
+	# Provides:          blabla
+	# Required-Start:    $syslog
+	# Required-Stop:     $syslog
+	# Default-Start:     2 3 4 5
+	# Default-Stop:      0 1 6
+	# Short-Description: blabla
+	# Description:
+	#
+	### END INIT INFO
+o tal vez elscript que quieres ejecutar requiera permisos en tal caso se debe poner sudo al final sin comentar 
+	sudo comando que quieres ejecutar
