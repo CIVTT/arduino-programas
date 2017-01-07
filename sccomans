@@ -27,5 +27,3 @@ se tendra que agregar en el scritp:
 	# Description:
 	#
 	### END INIT INFO
-o tal vez elscript que quieres ejecutar requiera permisos en tal caso se debe poner sudo al final sin comentar 
-	sudo comando que quieres ejecutar
