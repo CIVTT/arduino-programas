@@ -1,0 +1,32 @@
+/* 
+ * File:   conadoascdecen.c
+ * Author: anna
+ *
+ * Created on 6 de julio de 2017, 07:07 PM
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+ * 
+ */
+#include <xc.h>
+//.. configuracopn de pic16F877 cp off debugg off wacthdog off 
+//#pragma config cp = OFF//, DEBUGG = OFF, WRT = OFF, CPD =OFF,LVP=OFF,BOREN=OFF,PWRTE=ON,WDTE=OFF
+
+#define _XTAL_FREQ 4000000 
+int i;
+void main (void){
+    TRISB=0b000000011; // pone todos los pines  como salida excepto el 0 y 1
+    PORTB=0b000000000;
+    while(1){
+        if (PORTBbits.RB0=1){
+            for (i=0,i<=10,i++) 
+                _delay_ms (1000);
+            
+        }
+            
+    }  
+    return;
+}
