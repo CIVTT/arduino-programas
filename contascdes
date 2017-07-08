@@ -1,32 +1,40 @@
-/* 
- * File:   conadoascdecen.c
- * Author: anna
- *
- * Created on 6 de julio de 2017, 07:07 PM
- */
+int cont; //declaracion de variable para guardar el conteo
 
-#include <stdio.h>
-#include <stdlib.h>
+void main(void){
 
-/*
- * 
- */
-#include <xc.h>
-//.. configuracopn de pic16F877 cp off debugg off wacthdog off 
-//#pragma config cp = OFF//, DEBUGG = OFF, WRT = OFF, CPD =OFF,LVP=OFF,BOREN=OFF,PWRTE=ON,WDTE=OFF
-
-#define _XTAL_FREQ 4000000 
-int i;
-void main (void){
-    TRISB=0b000000011; // pone todos los pines  como salida excepto el 0 y 1
-    PORTB=0b000000000;
+	TRISB=0b000000011; // pone todos los pines  como salida excepto el 0 y 1
+    PORTB=0b000000000; //
     while(1){
-        if (PORTBbits.RB0=1){
-            for (i=0,i<=10,i++) 
-                _delay_ms (1000);
-            
-        }
-            
-    }  
-    return;
+        if (PORTBbits.RB0=1){	//verifica si la entrada RB0 esta activa
+            cont++;        //incrementa el valor de cont en 1
+            led(cont);	//llama la funcion led()
+            __delay_ms (500);
+		
+		}
+		if (PORTBbits.RB1=1){ //virfica si la entrada RB1 esta activa
+			cont--;	//decrese el valor de cont en 1
+			led(cont);	//llama a la funcion led
+			__delay_ms (500);
+		}
+		
+	}
+	return;
+}
+void led(int t){	// funcion led para mostrar en los led de las salida RB$ y RB7
+	if (10>=t){	//si es mayor o igual a 10 
+		cont=10;	//establece cont como 10
+		PORTBbits.RB4=;
+		PORTBbits.RB4=;
+	}
+		if (t<0){	//si es menor que cero
+		cont=0;	//mantiene cont =0
+		PORTBbits.RB4=;
+		PORTBbits.RB4=;
+	}
+		if (t<10 && t>0){	// si esta en el rango
+		
+		PORTBbits.RB4=;
+		PORTBbits.RB4=;
+	}
+	return;
 }
