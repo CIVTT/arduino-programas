@@ -28,9 +28,9 @@ import java.awt.event.*;
         private JTextField a,b,c;
         //private JTextField ;
         private JLabel etq1;
-        private JLabel etq_picth, etq_roll, etq_yao;
-        private JLabel eu_a,eu_b,eu_c;
-        private Panel panelEntrada, panelcentral,aux1,aux2,aux3;
+        private JLabel etq_picth, etq_roll, etq_yao,alt;
+        private JLabel eu_a,eu_b,eu_c,h;
+        private Panel panelEntrada, panelcentral,aux1,aux2,aux3,aux4;
 
         private JPanel panelDeLaVentana;
         Thread t;
@@ -73,6 +73,7 @@ import java.awt.event.*;
             aux1=new Panel();
             aux2=new Panel();
             aux3=new Panel();
+              aux4=new Panel();
           //Obtenemos la referencia al panel principal
             panelDeLaVentana = (JPanel)this.getContentPane();
             panelEntrada.setLayout(new BoxLayout(panelEntrada,BoxLayout.Y_AXIS));
@@ -98,24 +99,14 @@ import java.awt.event.*;
             aux3.add(b);
             aux3.add(eu_c);
             aux3.add(c);
-
+            aux4.add(h);
+            
             panelEntrada.add(aux1);
             panelEntrada.add(aux2);
             panelEntrada.add(aux3);
-            //panelcentral.add(etq_roll,BoxLayout.X_AXIS);
-          //Agregamos los componentes del panel de salida
-            //panelEntrada.add(panelcentral,BoxLayout.Y_AXIS);
-
-            //panelSalida.setVisible(true);
-            //Agregamos todo al panel Principal
-            //panelEntrada.setBounds(250,50,100,100);
-            //b1.setBounds(500,100,100,50);
-            //panelSalida.setBounds(500,500,100,100);
-            //panelDeLaVentana.add(panelEntrada,BorderLayout.NORTH);
-            //panelDeLaVentana.add(b1,BorderLayout.CENTER);
-            //panelDeLaVentana.add(panelSalida,BorderLayout.SOUTH);
+            panelEntrada.add(aux4);
             panelDeLaVentana.add(panelEntrada);
-            //panelDeLaVentana.add(panelcentral);
+            panelDeLaVentana.add(panelcentral);
             
         }
      
