@@ -15,6 +15,8 @@ import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent; 
 import gnu.io.SerialPortEventListener; 
 import java.util.Enumeration;
+import java.util.*;
+//import javax.comm.*;
 
 import java.util.Enumeration;
 import javax.swing.*;
@@ -25,6 +27,8 @@ public class trigo extends JFrame implements ActionListener{
     Enumeration puertos_libres;
     CommPortIdentifier port;
     SerialPort puerto_ser;
+    Enumeration listport;
+    CommPortIdentifier idport;
         private OutputStream out;
         private BufferedReader in;
         private static final int TIME_OUT = 2000;
@@ -51,7 +55,8 @@ public class trigo extends JFrame implements ActionListener{
             //Creamos el boton
             //JFrame 
             //Objet[][] dato={};
-            
+            listaport=CommPortIdentifier.getPortIdentifiers();
+            listapuerto();
             String[] columnaprincipal={"time","roll","picth","yao","alpha","beta","gama","altura"};
             Object[][] filas={{"time","roll","picth","yao","alpha","beta","gama","altura"},{"1","2","3","4","5","6","7","8"}};
             DefaultTableModel modelo = new DefaultTableModel(filas,columnaprincipal);
@@ -225,6 +230,15 @@ public class trigo extends JFrame implements ActionListener{
             }
 
 
+        }
+        public void listapuerto(){
+            String lista="";
+            lista +="Los puertos disponibles son:";
+            while (listaPort.hasMoreElements()){
+                idPort = (CommPortIdentifier) listaPort.nextElement();
+                lista +="PUERTO: " + idPort.getName() + " ";
+
+                }
         }
         public static void main(String[] arg){
             trigo miAplicacion = new trigo();
