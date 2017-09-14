@@ -1,4 +1,6 @@
 //https://www.udoo.org/forum/threads/eclipse-with-udoobuntu-and-arduino-communication-tutorial.1512/
+import java.awt.EventQueue;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -7,7 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.event.*;
-
+import java.util.List;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -18,6 +20,10 @@ import gnu.io.SerialPortEventListener;
 import java.util.Enumeration;
 import java.util.*;
 //import javax.comm.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JFileChooser;
 
 import java.util.Enumeration;
 import javax.swing.*;
@@ -26,14 +32,13 @@ import java.awt.event.*;
 import jxl.write.*;
 import jxl.*;
       
-public class trigo22 extends JFrame{
+public class ventafacil extends JFrame{
     Enumeration puertos_libres;
     CommPortIdentifier port;
     SerialPort puerto_ser;
     Enumeration listport;
     CommPortIdentifier idport;
     /*
-
     */
         private OutputStream out;
         private BufferedReader in;
@@ -58,7 +63,7 @@ public class trigo22 extends JFrame{
         private File files;
 
 
-        public trigo22(){
+        public ventafacil(){
             //Creamos el boton
             //JFrame 
             //Objet[][] dato={};
@@ -196,6 +201,7 @@ public class trigo22 extends JFrame{
                public void actionPerformed(ActionEvent e){
                 //while(true){ 
                     System.out.println("botonb2");
+                    
                     //Thread.sleep(100);
 
                  //   }
@@ -216,12 +222,12 @@ public class trigo22 extends JFrame{
                 nom.add("Compras por factura");
                 String file = chooser.getSelectedFile().toString().concat(".xls");
                 try {
-                    Clases.Exporter e = new Exporter(new File(file), tb, nom);
-                    if (e.export()) {
+                    Exporter e2 = new Exporter(new File(file), tb, nom);
+                    if (e2.export()) {
                         JOptionPane.showMessageDialog(null, "Los datos fueron exportados a excel en el directorio seleccionado", "Mensaje de Informacion", JOptionPane.INFORMATION_MESSAGE);
                     }
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null, "Hubo un error " + e.getMessage(), " Error", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception e2) {
+                    JOptionPane.showMessageDialog(null, "Hubo un error " + e2.getMessage(), " Error", JOptionPane.ERROR_MESSAGE);
                 }}
     
                 
@@ -274,8 +280,7 @@ public class trigo22 extends JFrame{
                     Thread.sleep(100);
                     System.out.println(dat);
                     }catch (Exception e1){
-                    }
-                }
+                    }}
             }
 
 
@@ -286,15 +291,14 @@ public class trigo22 extends JFrame{
             while (listaPort.hasMoreElements()){
                 idPort = (CommPortIdentifier) listaPort.nextElement();
                 lista +="PUERTO: " + idPort.getName() + " ";
-
                 }
         }*/
         public static void main(String[] arg){
-            trigo22 miAplicacion = new trigo22();
+            ventafacil miAplicacion = new ventafacil();
             miAplicacion.setTitle("   Muestreo de sensor   ");
             miAplicacion.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             miAplicacion.setBounds(50,50,600,800);
             miAplicacion.pack();
             miAplicacion.setVisible(true);
         }
-}   
+} 
