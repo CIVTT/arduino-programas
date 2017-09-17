@@ -1,206 +1,339 @@
-package poro;
 
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Button;
-
-import javax.swing.table.AbstractTableModel;
+import java.awt.EventQueue;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.*;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Table;
-
-/*
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
+import javax.swing.JScrollPane;
+import javax.swing.JPanel;
+import javax.swing.JFrame;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import gnu.io.CommPortIdentifier; 
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent; 
+import gnu.io.SerialPortEventListener; 
 import java.util.Enumeration;
-import javax.swing.JOptionPane;
-import org.eclipse.swt.widgets.Table;
-*/
+import java.util.*;
+//import javax.comm.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JFileChooser;
 
-public class solo {
-	private Text text;
-	private Text text_1;
-	private Text text_2;
-	private Text text_3;
-	private Text text_4;
-	private Text text_5;
-	private Text text_6;
-	private Table table;
-
-	/**
-	 * Launch the application.
-	 * @param args
-	 */
-	// Variables de conexión.
-    /*private OutputStream output = null;
-    SerialPort serialPort;
-    private final String puerto; //= "/dev/ttyUSB0";
-    private BufferedReader input;
-	private OutputStream output;
-    private static final int TIMEOUT = 2000; // 2 segundos.
-    private static final int DATA_RATE = 115200; // Baudios.
-    implements SerialPortEventListener
+import java.util.Enumeration;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import jxl.write.*;
+import jxl.*;
+      
+public class ventafacil extends JFrame{
+    Enumeration puertos_libres;
+    CommPortIdentifier port;
+    SerialPort puerto_ser;
+    Enumeration listport;
+    CommPortIdentifier idport;
+    /*
     */
-	
+        private OutputStream out;
+        private BufferedReader in;
+        private static final int TIME_OUT = 2000;
+        private static final int DATA_RATE = 9600;
 
+        private JButton b1,b2,b3;
+        private JTextField campo1,roll,picth,yao;
+        private JTextField a,b,c,h;
+        //private JTextField ;
+        private JLabel etq1;
+        private JLabel etq_picth, etq_roll, etq_yao;
+        private JLabel eu_a,eu_b,eu_c,alt;
+        private Panel panelbotones, panelcentral,aux1,aux2,aux3,aux4;
+        private JPanel panelDeLaVentana;
+        private JTable tabla;
+        private JMenuBar menus;
+        private JMenu file,conect;
+        private JMenu port_com;
+        Object[] objectaux= new Object[8];
+        Thread t;
+        private File files;
+        String lel;
 
-	public static void main(String[] args) {
-		try {
-			solo window = new solo();
-			window.open();
-		} catch (Exception e) {
-			e.printStackTrace();		
-		}
-	}
+         public ventafacil(){
+            //Creamos el boton
+            //JFrame 
+            //Objet[][] dato={};
+            //listaport=CommPortIdentifier.getPortIdentifiers();
+            //listapuerto();
+            String[] columnaprincipal={"time","roll","picth","yao","alpha","beta","gama","altura"};
+            Object[][] filas={{"time","roll","picth","yao","alpha","beta","gama","altura"},{"1","2","3","4","5","6","7","8"}};
+            DefaultTableModel modelo = new DefaultTableModel(filas,columnaprincipal);
+            tabla = new JTable (modelo);
+            JScrollPane scrollpane = new JScrollPane(tabla);
+            modelo.addRow(objectaux);
 
-	/**
-	 * Open the window.
-	 */
-	public void open() {
-		Display display = Display.getDefault();
-		Shell shlMuestreoDeData = new Shell();
-		shlMuestreoDeData.setText("Muestreo de data mpu5060");
-		shlMuestreoDeData.setLayout(null);
-		
-		Composite composite = new Composite(shlMuestreoDeData, SWT.BORDER);
-		composite.setBounds(108, 54, 142, 142);
-		composite.setLayout(null);
-		
-		Label lblNewLabel = new Label(composite, SWT.NONE);
-		lblNewLabel.setBounds(24, 10, 105, 17);
-		lblNewLabel.setText("roll, picht y yaw");
-		
-		text = new Text(composite, SWT.BORDER);
-		text.setBounds(59, 41, 81, 29);
-		
-		text_1 = new Text(composite, SWT.BORDER);
-		text_1.setBounds(59, 76, 81, 29);
-		
-		text_2 = new Text(composite, SWT.BORDER);
-		text_2.setBounds(59, 111, 81, 29);
-		
-		Label lblRoll = new Label(composite, SWT.NONE);
-		lblRoll.setBounds(10, 41, 33, 17);
-		lblRoll.setText("roll:");
-		
-		Label lblPicth = new Label(composite, SWT.NONE);
-		lblPicth.setBounds(10, 76, 43, 17);
-		lblPicth.setText("picth:");
-		
-		Label lblYaw = new Label(composite, SWT.NONE);
-		lblYaw.setBounds(10, 109, 33, 17);
-		lblYaw.setText("yaw:");
-		
-		Button btnNewButton_1 = new Button(shlMuestreoDeData, SWT.NONE);
-		btnNewButton_1.setBounds(252, 217, 67, 29);
-		btnNewButton_1.setText("autoset");
-		
-		Button btnNewButton = new Button(shlMuestreoDeData, SWT.BORDER);
-		btnNewButton.setBounds(456, 217, 45, 29);
-		btnNewButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-			
-				
-			}
-		});
-		btnNewButton.setText("stop");
-		
-		Composite composite_1 = new Composite(shlMuestreoDeData, SWT.BORDER);
-		composite_1.setBounds(311, 54, 136, 140);
-		
-		text_3 = new Text(composite_1, SWT.BORDER);
-		text_3.setBounds(50, 41, 81, 29);
-		
-		text_4 = new Text(composite_1, SWT.BORDER);
-		text_4.setBounds(50, 76, 81, 29);
-		
-		text_5 = new Text(composite_1, SWT.BORDER);
-		text_5.setBounds(50, 109, 81, 29);
-		
-		Label lblX = new Label(composite_1, SWT.NONE);
-		lblX.setBounds(22, 41, 23, 17);
-		lblX.setText("x:");
-		
-		Label lblY = new Label(composite_1, SWT.NONE);
-		lblY.setBounds(21, 76, 23, 17);
-		lblY.setText("y:");
-		
-		Label lblZ = new Label(composite_1, SWT.NONE);
-		lblZ.setBounds(21, 109, 23, 17);
-		lblZ.setText("z:");
-		
-		Label lblNewLabel_1 = new Label(composite_1, SWT.NONE);
-		lblNewLabel_1.setBounds(10, 10, 113, 17);
-		lblNewLabel_1.setText("angulos de euler");
-		
-		Composite composite_2 = new Composite(shlMuestreoDeData, SWT.BORDER);
-		composite_2.setBounds(503, 109, 136, 64);
-		
-		Label lblHm = new Label(composite_2, SWT.NONE);
-		lblHm.setText("h:");
-		lblHm.setBounds(10, 41, 22, 17);
-		
-		Label lblMetros = new Label(composite_2, SWT.NONE);
-		lblMetros.setText("m");
-		lblMetros.setBounds(96, 41, 28, 17);
-		
-		text_6 = new Text(composite_2, SWT.BORDER);
-		text_6.setBounds(34, 33, 56, 29);
-		
-		Label lblAltura = new Label(composite_2, SWT.NONE);
-		lblAltura.setBounds(34, 10, 56, 17);
-		lblAltura.setText("altura");
-		
-		table = new Table(shlMuestreoDeData, SWT.BORDER | SWT.FULL_SELECTION);
-		table.setBounds(58, 252, 629, 142);
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		// Arreglo del tipo Object
-		final Object []object = new Object[6];
-				
-				// Creamos el modelo
-		final DefaultTableModel modelo;
-						
-				// Inicializamos el modelo
-		modelo = new DefaultTableModel();
-						
-				// Vinculamos nuestro modelo a la tabla
-		//table.setMenu(modelo);
-						
-				// Columnas de la tabla
-		modelo.addColumn("#");
-		modelo.addColumn("Tipo");
-		modelo.addColumn("Número Origen");
-		modelo.addColumn("Número Destino");
-		modelo.addColumn("Duración");
-		modelo.addColumn("Franja");
-		modelo.addColumn("Precio");
-		
-		shlMuestreoDeData.open();
-		shlMuestreoDeData.layout();
-		while (!shlMuestreoDeData.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-	}
-}
-/**
-*searchForPorts();
-*connect();
-*if (connected == true){
-*if (initIOStream() == true){
-*initListener();
-*writeData("comandos a puerto serial");
-*/
-//---------------------------------------------------------
-//}
+            //Registramos a la ventana como oyente
+            b1 = new JButton("conectar");
+            b1.setBounds(50,5,100,30);
+            //b1.addActionListener(this);
+            b2 = new JButton("almacenar");
+            b2.setBounds(400,5,100,30);
+            b3=new JButton("exportar");
+            b3.setBounds(600,5,100,30);
+            //Creamos las etiquetas
+            etq1 = new JLabel("Puerto: ");
+            etq1.setBounds(200,5,100,30);
+            etq_roll =new JLabel("roll: ");
+            etq_picth =new JLabel("picth: ");
+            etq_yao =new JLabel("yao: ");
+            eu_a=new JLabel("x: ");
+            eu_b=new JLabel("y: ");
+            eu_c=new JLabel("z: ");
+            alt=new JLabel("h: ");
+            //campo de barra de menu
+            menus =new JMenuBar();
+            setJMenuBar(menus);
 
+            file=new JMenu("file");
+            menus.add(file);
+            conect=new JMenu("conectar");
+            menus.add(conect);
+            port_com=new JMenu("puertos");
+            conect.add(port_com);
+          //Creamos los campos de Texto
+            campo1 = new JTextField();
+            campo1.setBounds(250,5,100,30);
+            roll = new JTextField();
+            picth = new JTextField();
+            yao = new JTextField();
+            a=new JTextField();
+            b=new JTextField();
+            c=new JTextField();
+            h=new JTextField();
+          //Cambiamos la propiedades de los TextFields
+            campo1.setColumns(5);
+            roll.setColumns(5);
+            picth.setColumns(5);
+            yao.setColumns(5);
+            a.setColumns(5);
+            b.setColumns(5);
+            c.setColumns(5);
+            h.setColumns(5);
+          //Obtenemos la referencia al panel principal
+            panelDeLaVentana = (JPanel)this.getContentPane();
+            panelDeLaVentana.setLayout(null);            
+          //Creamos los paneles auxiliares
+            panelbotones = new Panel();
+            panelbotones.setLayout(null);
+            panelbotones.setBounds(200,320,700,100);
+            panelcentral = new Panel();
+            aux1=new Panel();
+            aux1.setBounds(200,100,200,200);
+            aux1.setLayout(new GridLayout(7,2));
+            aux2=new Panel();
+            aux2.setBounds(450,100,700,200);
+            aux2.setLayout(null);
+            tabla.setBounds(10,10,600,190);
+            
+            //roll.setText(lel);
+            aux4=new Panel();
+            aux4.setBounds(350,600,300,300);
+
+            aux1.add(etq_roll);
+            aux1.add(roll);
+            aux1.add(etq_picth);
+            aux1.add(picth);
+            aux1.add(etq_yao);
+            aux1.add(yao);
+            aux1.add(eu_a);
+            aux1.add(a);
+            aux1.add(eu_b);
+            aux1.add(b);
+            aux1.add(eu_c);
+            aux1.add(c);
+            aux1.add(alt);
+            aux1.add(h);
+            aux2.add(tabla);
+            panelbotones.add(b1);
+            panelbotones.add(b2);
+            panelbotones.add(b3);
+            panelbotones.add(etq1);
+            panelbotones.add(campo1);
+            panelDeLaVentana.add(aux1);
+            panelDeLaVentana.add(aux2);
+            panelDeLaVentana.add(panelbotones);
+            b1.addActionListener(new ActionListener(){
+            //super();
+            public void actionPerformed(ActionEvent e) {
+                puertos_libres = CommPortIdentifier.getPortIdentifiers();
+                int aux=0;
+                t=new Thread(new datarecivida());
+                while (puertos_libres.hasMoreElements())
+                    {
+                     port = (CommPortIdentifier) puertos_libres.nextElement();
+                     int type = port.getPortType();
+                     if (port.getName().equals(campo1.getText()))
+                     {
+                            try {
+                                puerto_ser = (SerialPort) port.open(this.getClass().getName(), 2000);
+                                   int baudRate = 9600; // 9600bps
+                                   //configuracion de arduino
+                                    puerto_ser.setSerialPortParams(
+                                            baudRate,
+                                            SerialPort.DATABITS_8,
+                                            SerialPort.STOPBITS_1,
+                                            SerialPort.PARITY_NONE);
+                                    puerto_ser.setDTR(true);
+                 ////////////////////////////////////////////////////////////////
+                                    //out = puerto_ser.getOutputStream();//salida de java
+                                    in = new BufferedReader(new InputStreamReader(puerto_ser.getInputStream()));; // entrada de java
+                                    t.start();                                    
+
+                            } catch (  Exception e1) {
+                            }
+ 
+                         break;
+                     }}}});
+            b2.addActionListener(cambiar);
+            
+            b3.addActionListener(new ActionListener(){
+               public void actionPerformed(ActionEvent e){
+                
+                
+            JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de excel", "xls");
+            chooser.setFileFilter(filter);
+            chooser.setDialogTitle("Guardar archivo");
+            chooser.setAcceptAllFileFilterUsed(false);
+            if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                List<JTable> tb = new ArrayList<JTable>();
+                List<String> nom = new ArrayList<String>();
+                tb.add(tabla);
+                nom.add("Compras por factura");
+                String file = chooser.getSelectedFile().toString().concat(".xls");
+                try {
+                    Exporter e2 = new Exporter(new File(file), tb, nom);
+                    if (e2.export()) {
+                        JOptionPane.showMessageDialog(null, "Los datos fueron exportados a excel en el directorio seleccionado", "Mensaje de Informacion", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception e2) {
+                    JOptionPane.showMessageDialog(null, "Hubo un error " + e2.getMessage(), " Error", JOptionPane.ERROR_MESSAGE);
+                }}
+    
+                
+                    System.out.println("interesante");
+                    //Thread.sleep(100);
+                 //   }
+                }});
+    }
+        public ActionListener cambiar=new ActionListener(){
+        	String dat;//="Sen2-12";
+        	public void actionPerformed( ActionEvent e ) {
+        	
+        	   
+                //System.out.println("botonb2");
+        	   String[] parts=dat.split("-");
+               String part1=parts[0];
+               String part2=parts[1];
+               if(part1.equalsIgnoreCase("Sen1")){
+                   roll.setText(part2);
+                   objectaux[0]=roll.getText();
+                   //System.out.println(part2);
+                   }
+               if(part1.equalsIgnoreCase("Sen2")){
+                   picth.setText(part2);
+                   objectaux[1]=picth.getText();
+                   //lel=part2;
+                   //System.out.println(part1);
+                   }
+               if(part1.equalsIgnoreCase("Sen3")){
+                   yao.setText(part2);
+                   objectaux[2]=yao.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen4")){
+                   a.setText(part2);
+                   objectaux[3]=a.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen5")){
+                   b.setText(part2);
+                   objectaux[5]=b.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen6")){
+                   c.setText(part2);
+                   objectaux[6]=c.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen7")){
+                   alt.setText(part2);
+                   objectaux[7]=alt.getText();
+                   }
+               System.out.println(objectaux);
+              
+            }
+    };
+        
+        public class datarecivida implements Runnable{
+            String dat;//="sen2=12";
+            
+            public void run(){
+            	try {
+            	dat=in.readLine();
+            	String[] parts=dat.split("-");
+                String part1=parts[0];
+                String part2=parts[1];
+                if(part1.equalsIgnoreCase("Sen1")){
+                    roll.setText(part2);
+                    objectaux[0]=roll.getText();
+                    //System.out.println(part2);
+                    }
+                if(part1.equalsIgnoreCase("Sen2")){
+                    picth.setText(part2);
+                    objectaux[1]=picth.getText();
+                    //lel=part2;
+                    //System.out.println(part1);
+                    }
+                if(part1.equalsIgnoreCase("Sen3")){
+                    yao.setText(part2);
+                    objectaux[2]=yao.getText();
+                    }
+                if(part1.equalsIgnoreCase("Sen4")){
+                    a.setText(part2);
+                    objectaux[3]=a.getText();
+                    }
+                if(part1.equalsIgnoreCase("Sen5")){
+                    b.setText(part2);
+                    objectaux[5]=b.getText();
+                    }
+                if(part1.equalsIgnoreCase("Sen6")){
+                    c.setText(part2);
+                    objectaux[6]=c.getText();
+                    }
+                if(part1.equalsIgnoreCase("Sen7")){
+                    alt.setText(part2);
+                    objectaux[7]=alt.getText();
+                    }
+                System.out.println(objectaux);
+            	}catch (Exception e1){
+            	}
+             }
+        }
+/*        public void listapuerto(){
+            String lista="";
+            lista +="Los puertos disponibles son:";
+            while (listaPort.hasMoreElements()){
+                idPort = (CommPortIdentifier) listaPort.nextElement();
+                lista +="PUERTO: " + idPort.getName() + " ";
+                }
+        }*/
+        public static void main(String[] arg){
+            ventafacil miAplicacion = new ventafacil();
+            miAplicacion.setTitle("   Muestreo de sensor   ");
+            miAplicacion.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            miAplicacion.setBounds(50,50,600,800);
+            miAplicacion.pack();
+            miAplicacion.setVisible(true);
+        }
+} 
