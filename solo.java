@@ -275,52 +275,52 @@ public class ventafacil extends JFrame{
             }
     };
         
-        public class datarecivida implements Runnable{
-            String dat;//="sen2=12";
-            
-            public void run(){
-            	try {
-            	dat=in.readLine();
-            	String[] parts=dat.split("-");
-                String part1=parts[0];
-                String part2=parts[1];
-                if(part1.equalsIgnoreCase("Sen1")){
-                    roll.setText(part2);
-                    objectaux[0]=roll.getText();
-                    //System.out.println(part2);
-                    }
-                if(part1.equalsIgnoreCase("Sen2")){
-                    picth.setText(part2);
-                    objectaux[1]=picth.getText();
-                    //lel=part2;
-                    //System.out.println(part1);
-                    }
-                if(part1.equalsIgnoreCase("Sen3")){
-                    yao.setText(part2);
-                    objectaux[2]=yao.getText();
-                    }
-                if(part1.equalsIgnoreCase("Sen4")){
-                    a.setText(part2);
-                    objectaux[3]=a.getText();
-                    }
-                if(part1.equalsIgnoreCase("Sen5")){
-                    b.setText(part2);
-                    objectaux[5]=b.getText();
-                    }
-                if(part1.equalsIgnoreCase("Sen6")){
-                    c.setText(part2);
-                    objectaux[6]=c.getText();
-                    }
-                if(part1.equalsIgnoreCase("Sen7")){
-                    alt.setText(part2);
-                    objectaux[7]=alt.getText();
-                    }
-                System.out.println(objectaux);
-            	}catch (Exception e1){
-            	}
-             }
-        }
-/*        public void listapuerto(){
+        public synchronized void serialEvent(SerialPortEvent oEvent) {
+
+            String dat;
+            if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+            //public void run(){
+                try {
+                dat=in.readLine();
+                String[] parts=dat.split("-");
+               String part1=parts[0];
+               String part2=parts[1];
+               //}catch (Exception e1){
+                //}
+
+               if(part1.equalsIgnoreCase("Sen1")){
+                   roll.setText(part2);
+                   //objectaux[0]=roll.getText();
+                   //System.out.println(part2);
+                   }
+               if(part1.equalsIgnoreCase("Sen2")){
+                   picth.setText(part2);
+                   //objectaux[1]=picth.getText();
+                   //System.out.println(part1);
+                   }
+               if(part1.equalsIgnoreCase("Sen3")){
+                   yao.setText(part2);
+                   //objectaux[2]=yao.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen4")){
+                   a.setText(part2);
+                   //objectaux[3]=a.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen5")){
+                   b.setText(part2);
+                   //objectaux[5]=b.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen6")){
+                   c.setText(part2);
+                   //objectaux[6]=c.getText();
+                   }
+               if(part1.equalsIgnoreCase("Sen7")){
+                   alt.setText(part2);
+                   //objectaux[7]=alt.getText();
+                }
+            }catch (Exception e1){
+                }
+    }}/*        public void listapuerto(){
             String lista="";
             lista +="Los puertos disponibles son:";
             while (listaPort.hasMoreElements()){
