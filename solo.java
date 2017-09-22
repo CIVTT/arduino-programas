@@ -32,7 +32,7 @@ import java.awt.event.*;
 import jxl.write.*;
 import jxl.*;
       
-public class ventafacil extends JFrame{
+public class trigo extends JFrame{
     Enumeration puertos_libres;
     CommPortIdentifier port;
     SerialPort puerto_ser;
@@ -45,7 +45,8 @@ public class ventafacil extends JFrame{
         private static final int TIME_OUT = 2000;
         private static final int DATA_RATE = 9600;
 
-        private JButton b1,b2,b3;
+        private JButton b1,b3;
+        private JToggleButton b2;
         private JTextField campo1,roll,picth,yao;
         private JTextField a,b,c,h;
         //private JTextField ;
@@ -61,9 +62,9 @@ public class ventafacil extends JFrame{
         Object[] objectaux= new Object[8];
         Thread t;
         private File files;
-        String lel;
 
-         public ventafacil(){
+
+        public trigo(){
             //Creamos el boton
             //JFrame 
             //Objet[][] dato={};
@@ -74,13 +75,12 @@ public class ventafacil extends JFrame{
             DefaultTableModel modelo = new DefaultTableModel(filas,columnaprincipal);
             tabla = new JTable (modelo);
             JScrollPane scrollpane = new JScrollPane(tabla);
-            modelo.addRow(objectaux);
-
+            
             //Registramos a la ventana como oyente
             b1 = new JButton("conectar");
             b1.setBounds(50,5,100,30);
             //b1.addActionListener(this);
-            b2 = new JButton("almacenar");
+            b2 = new JToggleButton("almacenar");
             b2.setBounds(400,5,100,30);
             b3=new JButton("exportar");
             b3.setBounds(600,5,100,30);
@@ -139,7 +139,6 @@ public class ventafacil extends JFrame{
             aux2.setLayout(null);
             tabla.setBounds(10,10,600,190);
             
-            //roll.setText(lel);
             aux4=new Panel();
             aux4.setBounds(350,600,300,300);
 
@@ -171,7 +170,7 @@ public class ventafacil extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 puertos_libres = CommPortIdentifier.getPortIdentifiers();
                 int aux=0;
-                t=new Thread(new datarecivida());
+                //t=new Thread(new datarecivida());
                 while (puertos_libres.hasMoreElements())
                     {
                      port = (CommPortIdentifier) puertos_libres.nextElement();
@@ -191,15 +190,47 @@ public class ventafacil extends JFrame{
                  ////////////////////////////////////////////////////////////////
                                     //out = puerto_ser.getOutputStream();//salida de java
                                     in = new BufferedReader(new InputStreamReader(puerto_ser.getInputStream()));; // entrada de java
-                                    t.start();                                    
+                                    //t.start();
 
                             } catch (  Exception e1) {
                             }
  
                          break;
                      }}}});
-            b2.addActionListener(cambiar);
-            
+            b2.addActionListener(new ActionListener(){
+               public void actionPerformed(ActionEvent e){
+                    AbstractButton abstractButton = (AbstractButton) e.getSource();
+                    boolean truue = abstractButton.getModel().isSelected();
+                    //while(true){
+
+                    if (truue==true){
+                        b2.setText("parar");
+
+                        objectaux[0]=roll.getText();
+                        objectaux[1]=picth.getText();
+                        objectaux[2]=yao.getText();
+                        objectaux[3]=a.getText();
+                        objectaux[4]=b.getText();
+                        objectaux[5]=c.getText();
+                        objectaux[6]=h.getText();
+                        modelo.addRow(objectaux);
+                        
+                    }
+                    else{
+                        //break;
+                        b2.setText("almacenar");
+                    }
+                //}
+                //while(true){ 
+                    /*AbstractButton abstractButton = (AbstractButton) e.getSource();
+                    boolean selected = abstractButton.getModel().isSelected();
+                    System.out.println("Action - selected=" + selected + "\n");*/
+                    //System.out.println("botonb2");
+                    
+                    //Thread.sleep(100);
+
+                 //   }
+                }});
             b3.addActionListener(new ActionListener(){
                public void actionPerformed(ActionEvent e){
                 
@@ -230,52 +261,9 @@ public class ventafacil extends JFrame{
                  //   }
                 }});
     }
-        public ActionListener cambiar=new ActionListener(){
-        	String dat;//="Sen2-12";
-        	public void actionPerformed( ActionEvent e ) {
-        	
-        	   
-                //System.out.println("botonb2");
-        	   String[] parts=dat.split("-");
-               String part1=parts[0];
-               String part2=parts[1];
-               if(part1.equalsIgnoreCase("Sen1")){
-                   roll.setText(part2);
-                   objectaux[0]=roll.getText();
-                   //System.out.println(part2);
-                   }
-               if(part1.equalsIgnoreCase("Sen2")){
-                   picth.setText(part2);
-                   objectaux[1]=picth.getText();
-                   //lel=part2;
-                   //System.out.println(part1);
-                   }
-               if(part1.equalsIgnoreCase("Sen3")){
-                   yao.setText(part2);
-                   objectaux[2]=yao.getText();
-                   }
-               if(part1.equalsIgnoreCase("Sen4")){
-                   a.setText(part2);
-                   objectaux[3]=a.getText();
-                   }
-               if(part1.equalsIgnoreCase("Sen5")){
-                   b.setText(part2);
-                   objectaux[5]=b.getText();
-                   }
-               if(part1.equalsIgnoreCase("Sen6")){
-                   c.setText(part2);
-                   objectaux[6]=c.getText();
-                   }
-               if(part1.equalsIgnoreCase("Sen7")){
-                   alt.setText(part2);
-                   objectaux[7]=alt.getText();
-                   }
-               System.out.println(objectaux);
-              
-            }
-    };
         
-        public synchronized void serialEvent(SerialPortEvent oEvent) {
+        //public class datarecivida implements Runnable{
+        /*public synchronized void serialEvent(SerialPortEvent oEvent) {
 
             String dat;
             if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
@@ -320,7 +308,8 @@ public class ventafacil extends JFrame{
                 }
             }catch (Exception e1){
                 }
-    }}/*        public void listapuerto(){
+    }}
+/*        public void listapuerto(){
             String lista="";
             lista +="Los puertos disponibles son:";
             while (listaPort.hasMoreElements()){
@@ -328,8 +317,11 @@ public class ventafacil extends JFrame{
                 lista +="PUERTO: " + idPort.getName() + " ";
                 }
         }*/
+        public void loop(){
+            
+        }
         public static void main(String[] arg){
-            ventafacil miAplicacion = new ventafacil();
+            trigo miAplicacion = new trigo();
             miAplicacion.setTitle("   Muestreo de sensor   ");
             miAplicacion.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             miAplicacion.setBounds(50,50,600,800);
