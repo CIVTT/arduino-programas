@@ -61,21 +61,24 @@ public class trigo extends JFrame{
         private JMenu port_com;
         Object[] objectaux= new Object[8];
         Thread t;
+        Thread capture;
         private File files;
-
-
+        DefaultTableModel modelo;
+        String dat;
         public trigo(){
             //Creamos el boton
             //JFrame 
             //Objet[][] dato={};
             //listaport=CommPortIdentifier.getPortIdentifiers();
             //listapuerto();
+            t = new Thread(new datarecivida());
+            capture =new Thread(new capturastabla());
             String[] columnaprincipal={"time","roll","picth","yao","alpha","beta","gama","altura"};
             Object[][] filas={{"time","roll","picth","yao","alpha","beta","gama","altura"},{"1","2","3","4","5","6","7","8"}};
-            DefaultTableModel modelo = new DefaultTableModel(filas,columnaprincipal);
+             modelo = new DefaultTableModel(filas,columnaprincipal);
             tabla = new JTable (modelo);
             JScrollPane scrollpane = new JScrollPane(tabla);
-            
+            tabla.setFocusable(false);
             //Registramos a la ventana como oyente
             b1 = new JButton("conectar");
             b1.setBounds(50,5,100,30);
@@ -117,12 +120,19 @@ public class trigo extends JFrame{
           //Cambiamos la propiedades de los TextFields
             campo1.setColumns(5);
             roll.setColumns(5);
+            roll.setFocusable(false);
             picth.setColumns(5);
+            picth.setFocusable(false);
             yao.setColumns(5);
+            yao.setFocusable(false);
             a.setColumns(5);
+            a.setFocusable(false);
             b.setColumns(5);
+            b.setFocusable(false);
             c.setColumns(5);
+            c.setFocusable(false);
             h.setColumns(5);
+            h.setFocusable(false);
           //Obtenemos la referencia al panel principal
             panelDeLaVentana = (JPanel)this.getContentPane();
             panelDeLaVentana.setLayout(null);            
@@ -157,6 +167,7 @@ public class trigo extends JFrame{
             aux1.add(alt);
             aux1.add(h);
             aux2.add(tabla);
+            aux2.add(scrollpane);
             panelbotones.add(b1);
             panelbotones.add(b2);
             panelbotones.add(b3);
@@ -167,8 +178,16 @@ public class trigo extends JFrame{
             panelDeLaVentana.add(panelbotones);
             b1.addActionListener(new ActionListener(){
             //super();
-            public void actionPerformed(ActionEvent e) {
-                puertos_libres = CommPortIdentifier.getPortIdentifiers();
+            public void actionPerformed(ActionEvent ee){
+                dat="Sen4=29";
+                try {
+                    t.start();
+                    capture.start();
+                    capture.suspend();
+                }catch(Exception e24){
+
+                }}});
+                /*puertos_libres = CommPortIdentifier.getPortIdentifiers();
                 int aux=0;
                 //t=new Thread(new datarecivida());
                 while (puertos_libres.hasMoreElements())
@@ -191,34 +210,24 @@ public class trigo extends JFrame{
                                     //out = puerto_ser.getOutputStream();//salida de java
                                     in = new BufferedReader(new InputStreamReader(puerto_ser.getInputStream()));; // entrada de java
                                     //t.start();
-
                             } catch (  Exception e1) {
                             }
- 
                          break;
-                     }}}});
-            b2.addActionListener(new ActionListener(){
-               public void actionPerformed(ActionEvent e){
-                    AbstractButton abstractButton = (AbstractButton) e.getSource();
-                    boolean truue = abstractButton.getModel().isSelected();
-                    //while(true){
-
-                    if (truue==true){
+                     }}}*/
+            b2.addItemListener(new ItemListener(){
+               public void itemStateChanged(ItemEvent e){
+                    //AbstractButton abstractButton = (AbstractButton) e.getSource();
+                    //boolean truue = abstractButton.getModel().isSelected();
+                    //while(truue){
+                    int state = e.getStateChange();
+                    if (state==ItemEvent.SELECTED){
                         b2.setText("parar");
-
-                        objectaux[0]=roll.getText();
-                        objectaux[1]=picth.getText();
-                        objectaux[2]=yao.getText();
-                        objectaux[3]=a.getText();
-                        objectaux[4]=b.getText();
-                        objectaux[5]=c.getText();
-                        objectaux[6]=h.getText();
-                        modelo.addRow(objectaux);
-                        
+                        capture.resume();
                     }
                     else{
                         //break;
                         b2.setText("almacenar");
+                        capture.suspend();
                     }
                 //}
                 //while(true){ 
@@ -232,7 +241,7 @@ public class trigo extends JFrame{
                  //   }
                 }});
             b3.addActionListener(new ActionListener(){
-               public void actionPerformed(ActionEvent e){
+               public void actionPerformed(ActionEvent e1){
                 
                 
             JFileChooser chooser = new JFileChooser();
@@ -262,53 +271,43 @@ public class trigo extends JFrame{
                 }});
     }
         
-        //public class datarecivida implements Runnable{
-        /*public synchronized void serialEvent(SerialPortEvent oEvent) {
+        public class datarecivida implements Runnable{
+        //public synchronized void serialEvent(SerialPortEvent oEvent) {
 
-            String dat;
-            if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-            //public void run(){
+            
+            //if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+            public void run(){
+                while(true){
                 try {
-                dat=in.readLine();
-                String[] parts=dat.split("-");
+                //dat=in.readLine();
+                String[] parts=dat.split("=");
                String part1=parts[0];
                String part2=parts[1];
-               //}catch (Exception e1){
-                //}
 
                if(part1.equalsIgnoreCase("Sen1")){
                    roll.setText(part2);
-                   //objectaux[0]=roll.getText();
-                   //System.out.println(part2);
                    }
                if(part1.equalsIgnoreCase("Sen2")){
                    picth.setText(part2);
-                   //objectaux[1]=picth.getText();
-                   //System.out.println(part1);
                    }
                if(part1.equalsIgnoreCase("Sen3")){
                    yao.setText(part2);
-                   //objectaux[2]=yao.getText();
                    }
                if(part1.equalsIgnoreCase("Sen4")){
                    a.setText(part2);
-                   //objectaux[3]=a.getText();
                    }
                if(part1.equalsIgnoreCase("Sen5")){
                    b.setText(part2);
-                   //objectaux[5]=b.getText();
                    }
                if(part1.equalsIgnoreCase("Sen6")){
                    c.setText(part2);
-                   //objectaux[6]=c.getText();
                    }
                if(part1.equalsIgnoreCase("Sen7")){
                    alt.setText(part2);
-                   //objectaux[7]=alt.getText();
                 }
             }catch (Exception e1){
                 }
-    }}
+    }}}
 /*        public void listapuerto(){
             String lista="";
             lista +="Los puertos disponibles son:";
@@ -317,8 +316,24 @@ public class trigo extends JFrame{
                 lista +="PUERTO: " + idPort.getName() + " ";
                 }
         }*/
-        public void loop(){
-            
+        public class capturastabla implements Runnable{
+                            public void run(){
+                                while(true){
+                                try{
+                                objectaux[0]=roll.getText();
+                                objectaux[1]=picth.getText();
+                                objectaux[2]=yao.getText();
+                                objectaux[3]=a.getText();
+                                objectaux[4]=b.getText();
+                                objectaux[5]=c.getText();
+                                objectaux[6]=h.getText();
+                                modelo.addRow(objectaux);
+                                capture.sleep(200);
+                            }catch(Exception e3){
+                                //System.out.println("look");
+                            }
+                            }
+                            }
         }
         public static void main(String[] arg){
             trigo miAplicacion = new trigo();
