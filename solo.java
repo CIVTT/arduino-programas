@@ -1,4 +1,3 @@
-
 import java.awt.EventQueue;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
@@ -53,7 +52,7 @@ public class trigo extends JFrame{
         private JLabel etq1;
         private JLabel etq_picth, etq_roll, etq_yao;
         private JLabel eu_a,eu_b,eu_c,alt;
-        private Panel panelbotones, panelcentral,aux1,aux2,aux3,aux4;
+        private JPanel panelbotones, panelcentral,aux1,aux2,aux3,aux4;
         private JPanel panelDeLaVentana;
         private JTable tabla;
         private JMenuBar menus;
@@ -74,8 +73,8 @@ public class trigo extends JFrame{
             t = new Thread(new datarecivida());
             capture =new Thread(new capturastabla());
             String[] columnaprincipal={"time","roll","picth","yao","alpha","beta","gama","altura"};
-            Object[][] filas={{"time","roll","picth","yao","alpha","beta","gama","altura"},{"1","2","3","4","5","6","7","8"}};
-             modelo = new DefaultTableModel(filas,columnaprincipal);
+            Object[][] filas={{"1","2","3","4","5","6","7","8"}};
+            modelo = new DefaultTableModel(filas,columnaprincipal);
             tabla = new JTable (modelo);
             JScrollPane scrollpane = new JScrollPane(tabla);
             tabla.setFocusable(false);
@@ -135,21 +134,22 @@ public class trigo extends JFrame{
             h.setFocusable(false);
           //Obtenemos la referencia al panel principal
             panelDeLaVentana = (JPanel)this.getContentPane();
-            panelDeLaVentana.setLayout(null);            
+            panelDeLaVentana.setLayout(null);
+            panelDeLaVentana.setVisible(true);            
           //Creamos los paneles auxiliares
-            panelbotones = new Panel();
+            panelbotones = new JPanel();
             panelbotones.setLayout(null);
             panelbotones.setBounds(200,320,700,100);
-            panelcentral = new Panel();
-            aux1=new Panel();
+            panelcentral = new JPanel();
+            aux1=new JPanel();
             aux1.setBounds(200,100,200,200);
             aux1.setLayout(new GridLayout(7,2));
-            aux2=new Panel();
-            aux2.setBounds(450,100,700,200);
-            aux2.setLayout(null);
-            tabla.setBounds(10,10,600,190);
-            
-            aux4=new Panel();
+            aux2=new JPanel();
+            aux2.setBounds(450,100,550,200);
+            aux2.setLayout(new BoxLayout(aux2, BoxLayout.X_AXIS));
+            //tabla.setBounds(10,10,600,190);
+            //aux2.setBackground(Color.GREEN);
+            aux4=new JPanel();
             aux4.setBounds(350,600,300,300);
 
             aux1.add(etq_roll);
@@ -168,6 +168,8 @@ public class trigo extends JFrame{
             aux1.add(h);
             aux2.add(tabla);
             aux2.add(scrollpane);
+            aux2.setVisible(true);
+            scrollpane.setViewportView (tabla);
             panelbotones.add(b1);
             panelbotones.add(b2);
             panelbotones.add(b3);
@@ -328,7 +330,7 @@ public class trigo extends JFrame{
                                 objectaux[5]=c.getText();
                                 objectaux[6]=h.getText();
                                 modelo.addRow(objectaux);
-                                capture.sleep(200);
+                                capture.sleep(20);
                             }catch(Exception e3){
                                 //System.out.println("look");
                             }
