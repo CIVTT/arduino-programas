@@ -1,4 +1,5 @@
 //https://www.udoo.org/forum/threads/eclipse-with-udoobuntu-and-arduino-communication-tutorial.1512/
+//https://jonathanmelgoza.com/blog/comunicacion-serial-en-java/
 import java.awt.EventQueue;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
@@ -7,7 +8,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
-import java.awt.*;
+import java.awt.*
 import java.awt.event.*;
 import java.util.List;
 import java.io.BufferedReader;
