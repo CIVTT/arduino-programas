@@ -57,6 +57,7 @@ public class trigo extends JFrame{
         private JTable tabla;
         private JMenuBar menus;
         private JMenu file,conect;
+        private JMenuItem exit,exporta,limpiar;
         private JMenu port_com;
         Object[] objectaux= new Object[8];
         Thread t;
@@ -106,6 +107,55 @@ public class trigo extends JFrame{
             menus.add(conect);
             port_com=new JMenu("puertos");
             conect.add(port_com);
+            exit=new JMenuItem("Salir");
+            exporta=new JMenuItem("Exportar Tabla");
+            limpiar=new JMenuItem("Vaciar Tabla");
+            file.add(exporta);
+            file.add(limpiar);
+            file.add(exit);
+            //accion de los jjmenuitem
+            exporta.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent evento){
+                JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de excel", "xls");
+            chooser.setFileFilter(filter);
+            chooser.setDialogTitle("Guardar archivo");
+            chooser.setAcceptAllFileFilterUsed(false);
+            if (chooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+                List<JTable> tb = new ArrayList<JTable>();
+                List<String> nom = new ArrayList<String>();
+                tb.add(tabla);
+                nom.add("Compras por factura");
+                String file = chooser.getSelectedFile().toString().concat(".xls");
+                try {
+                    Exporter e2 = new Exporter(new File(file), tb, nom);
+                    if (e2.export()) {
+                        JOptionPane.showMessageDialog(null, "Los datos fueron exportados a excel en el directorio seleccionado", "Mensaje de Informacion", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception e2) {
+                    JOptionPane.showMessageDialog(null, "Hubo un error " + e2.getMessage(), " Error", JOptionPane.ERROR_MESSAGE);
+                }}
+    
+                
+                    System.out.println("interesante");
+                    //Thread.sleep(100);
+                }
+            });
+            limpiar.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent evento2){
+                        //DefaultTableModel modelo = (DefaultTableModel) Tabla.getModel();
+                        while(modelo.getRowCount()>0)modelo.removeRow(0);
+ 
+                        //TableColumnModel modCol = Tabla.getColumnModel();
+                        //while(modCol.getColumnCount()>0)modCol.removeColumn(modCol.getColumn(0));
+                }
+
+            });
+            exit.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent evento3){
+                    System.exit(0);
+                }
+            });
           //Creamos los campos de Texto
             campo1 = new JTextField();
             campo1.setBounds(250,5,100,30);
@@ -134,6 +184,7 @@ public class trigo extends JFrame{
             h.setFocusable(false);
           //Obtenemos la referencia al panel principal
             panelDeLaVentana = (JPanel)this.getContentPane();
+            //panelDeLaVentana.setBounds(50,50,600,800);
             panelDeLaVentana.setLayout(null);
             panelDeLaVentana.setVisible(true);            
           //Creamos los paneles auxiliares
