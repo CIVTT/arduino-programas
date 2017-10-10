@@ -21,7 +21,7 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener; 
 import java.util.Enumeration;
 import java.util.*;
-//import javax.comm.*;
+import javax.swing.JOptionPane;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,8 @@ import jxl.*;
 public class ventafacil extends JFrame{
     Enumeration puertos_libres;
     CommPortIdentifier port;
-    SerialPort puerto_ser;
-    Enumeration listport;
+    SerialPort serialPort;
+    //Enumeration serialPort;
     CommPortIdentifier idport;
     /*
     */
@@ -238,6 +238,8 @@ public class ventafacil extends JFrame{
             capture.suspend();
             t.start();
             t.suspend();
+            comunica.start();
+            comunica.suspend();
             b1.addItemListener(new ItemListener(){
             //super();
             public void itemStateChanged(ItemEvent ee){
@@ -246,34 +248,12 @@ public class ventafacil extends JFrame{
                 if (state1==ItemEvent.SELECTED){
                 	b1.setText("desconect");
                     t.resume();
-                    puertos_libres = CommPortIdentifier.getPortIdentifiers();
-                    int aux=0;
-                    while (puertos_libres.hasMoreElements())
-                        {
-                         port = (CommPortIdentifier) puertos_libres.nextElement();
-                         int type = port.getPortType();
-                         if (port.getName().equals(campo1.getText()))
-                         {
-                                try {
-                                    puerto_ser = (SerialPort) port.open(this.getClass().getName(), 2000);
-                                       int baudRate = 9600; // 9600bps
-                                       //configuracion de arduino
-                                        puerto_ser.setSerialPortParams(
-                                                baudRate,
-                                                SerialPort.DATABITS_8,
-                                                SerialPort.STOPBITS_1,
-                                                SerialPort.PARITY_NONE);
-                                        puerto_ser.setDTR(true);
-                                        //out = puerto_ser.getOutputStream();//salida de java
-                                        in = new BufferedReader(new InputStreamReader(puerto_ser.getInputStream()));; // entrada de java
-                                        //t.start();
-                                       // puerto_ser.addEventListener(this);
-                                        //puerto_ser.notifyOnDataAvailable(true);
-                                } catch (  Exception e1) {
-                         }}}}
+                    comunica.resume();
+                    }
                 else {
                 	b1.setText("conectar");
                 	t.suspend();
+                	comunica.suspend();
                 }
                 }
                 });
@@ -305,9 +285,7 @@ public class ventafacil extends JFrame{
                  //   }
                 }});
             b3.addActionListener(new ActionListener(){
-               public void actionPerformed(ActionEvent e1){
-                
-                
+               public void actionPerformed(ActionEvent e1){     
             JFileChooser chooser = new JFileChooser();
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de excel", "xls");
             chooser.setFileFilter(filter);
@@ -327,8 +305,6 @@ public class ventafacil extends JFrame{
                 } catch (Exception e2) {
                     JOptionPane.showMessageDialog(null, "Hubo un error " + e2.getMessage(), " Error", JOptionPane.ERROR_MESSAGE);
                 }}
-    
-                
                     System.out.println("interesante");
                     //Thread.sleep(100);
                  //   }
@@ -336,11 +312,63 @@ public class ventafacil extends JFrame{
     }
         public class comunicacion implements Runnable{
         	public void run() {
-        		try {
-        			dat=in.readLine();
-        		}catch (Exception err){
-        			
+        		CommPortIdentifier portId = null;
+        		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
+        		//puertos_libres = CommPortIdentifier.getPortIdentifiers();
+        		while (portEnum.hasMoreElements()) {
+        			CommPortIdentifier currPortId = (CommPortIdentifier)portEnum.nextElement();
+        			if (currPortId.getName().equals(campo1.getText())) {
+        				portId = currPortId;
+        				break;
+        			}
         		}
+        		if (portId == null) {
+        			System.out.println("no puertos.");
+        			//System.exit(ERROR);
+        			return;
+        		}
+         
+        		try {
+        			// open serial port, and use class name for the appName.
+        			serialPort = (SerialPort) portId.open(this.getClass().getName(), 2000);
+        			// set port parameters
+        			int baudRate = 9600;
+        			serialPort.setSerialPortParams(baudRate,
+                            SerialPort.DATABITS_8,
+                            SerialPort.STOPBITS_1,
+                            SerialPort.PARITY_NONE);
+         
+        			// open the streams
+        			//output = serialPort.getOutputStream();
+        			in = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
+        		} catch (Exception e) {
+        			System.err.println(e.getMessage());
+        			//System.exit(ERROR);
+        		}
+                /*while (puertos_libres.hasMoreElements())
+                    {
+                     port = (CommPortIdentifier) puertos_libres.nextElement();
+                     int type = port.getPortType();
+                     if (port.getName().equals(campo1.getText()))
+                     {
+                            try {
+                                puerto_ser = (SerialPort) port.open(this.getClass().getName(), 2000);
+                                   int baudRate = 9600; // 9600bps
+                                   //configuracion de arduino
+                                    puerto_ser.setSerialPortParams(
+                                            baudRate,
+                                            SerialPort.DATABITS_8,
+                                            SerialPort.STOPBITS_1,
+                                            SerialPort.PARITY_NONE);
+                                    puerto_ser.setDTR(true);
+                                    //out = puerto_ser.getOutputStream();//salida de java
+                                    in = new BufferedReader(new InputStreamReader(puerto_ser.getInputStream())); // entrada de java
+                                    //t.start();
+                                   // puerto_ser.addEventListener(this);
+                                    //puerto_ser.notifyOnDataAvailable(true);
+                            } catch (  Exception e1) {
+                     }}}*/
+        		
         	}
         }
         
@@ -352,7 +380,7 @@ public class ventafacil extends JFrame{
             	//InputStream in;
                 while(true){
                 try {
-                //dat=in.readLine();
+                dat=in.readLine();
                 String[] parts=dat.split("=");
                String part1=parts[0];
                String part2=parts[1];
