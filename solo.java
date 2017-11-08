@@ -1,3 +1,4 @@
+package interfazil;
 import java.awt.EventQueue;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
@@ -18,24 +19,29 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener; 
 import java.util.Enumeration;
 import java.util.*;
-//import javax.comm.*;
+import javax.swing.JOptionPane;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
-
 import java.util.Enumeration;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import jxl.write.*;
 import jxl.*;
-      
-public class trigo extends JFrame{
+
+import java.awt.Color;
+import java.awt.geom.GeneralPath;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import javax.swing.JPanel;
+
+public class ventafacil extends JFrame{
     Enumeration puertos_libres;
     CommPortIdentifier port;
-    SerialPort puerto_ser;
-    Enumeration listport;
+    SerialPort serialPort;
+    //Enumeration serialPort;
     CommPortIdentifier idport;
     /*
     */
@@ -43,12 +49,11 @@ public class trigo extends JFrame{
         private BufferedReader in;
         private static final int TIME_OUT = 2000;
         private static final int DATA_RATE = 9600;
-
-        private JButton b1,b3;
-        private JToggleButton b2;
+        private String PORT_NAME;
+        private JButton b3;
+        private JToggleButton b1,b2;
         private JTextField campo1,roll,picth,yao;
         private JTextField a,b,c,h;
-        //private JTextField ;
         private JLabel etq1;
         private JLabel etq_picth, etq_roll, etq_yao;
         private JLabel eu_a,eu_b,eu_c,alt;
@@ -60,31 +65,31 @@ public class trigo extends JFrame{
         private JMenuItem exit,exporta,limpiar;
         private JMenu port_com;
         Object[] objectaux= new Object[8];
-        Thread t;
+        Thread t,comunica;
         Thread capture;
         private File files;
         DefaultTableModel modelo;
         String dat;
-        public trigo(){
+        //Graphics g;
+        public ventafacil(){
             //Creamos el boton
             //JFrame 
             //Objet[][] dato={};
             //listaport=CommPortIdentifier.getPortIdentifiers();
             //listapuerto();
-            t = new Thread(new datarecivida());
-            capture =new Thread(new capturastabla());
-            String[] columnaprincipal={"time","roll","picth","yao","alpha","beta","gama","altura"};
-            Object[][] filas={{"1","2","3","4","5","6","7","8"}};
+            
+            String[] columnaprincipal={"roll","picth","yao","alpha","beta","gama","altura"};
+            Object[][] filas={};
             modelo = new DefaultTableModel(filas,columnaprincipal);
             tabla = new JTable (modelo);
             JScrollPane scrollpane = new JScrollPane(tabla);
             tabla.setFocusable(false);
             //Registramos a la ventana como oyente
-            b1 = new JButton("conectar");
-            b1.setBounds(50,5,100,30);
+            b1 = new JToggleButton("conectar");
+            b1.setBounds(50,5,130,30);
             //b1.addActionListener(this);
             b2 = new JToggleButton("almacenar");
-            b2.setBounds(400,5,100,30);
+            b2.setBounds(400,5,130,30);
             b3=new JButton("exportar");
             b3.setBounds(600,5,100,30);
             //Creamos las etiquetas
@@ -103,7 +108,7 @@ public class trigo extends JFrame{
 
             file=new JMenu("file");
             menus.add(file);
-            conect=new JMenu("conectar");
+            conect=new JMenu("Herramientas");
             menus.add(conect);
             port_com=new JMenu("puertos");
             conect.add(port_com);
@@ -111,7 +116,7 @@ public class trigo extends JFrame{
             exporta=new JMenuItem("Exportar Tabla");
             limpiar=new JMenuItem("Vaciar Tabla");
             file.add(exporta);
-            file.add(limpiar);
+            conect.add(limpiar);
             file.add(exit);
             //accion de los jjmenuitem
             exporta.addActionListener(new ActionListener(){
@@ -200,9 +205,21 @@ public class trigo extends JFrame{
             aux2.setLayout(new BoxLayout(aux2, BoxLayout.X_AXIS));
             //tabla.setBounds(10,10,600,190);
             //aux2.setBackground(Color.GREEN);
-            aux4=new JPanel();
-            aux4.setBounds(350,600,300,300);
-
+            aux4=new JPanel() {
+            	public void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    //g.setColor(Color.BLUE);
+                    //g.fillRect(0, 0, 100, 100);
+                    g.setColor(Color.blue);
+                    //g.draw
+                    g.fillRect(2, 0, 20, 50);
+                }
+            };
+            aux4.setBounds(350,450,400,200);
+            //aux4.setBackground(new Color(107, 106, 104));
+            
+            //g.setColor(Color.blue);
+            
             aux1.add(etq_roll);
             aux1.add(roll);
             aux1.add(etq_picth);
@@ -224,79 +241,109 @@ public class trigo extends JFrame{
             panelbotones.add(b1);
             panelbotones.add(b2);
             panelbotones.add(b3);
+            
             panelbotones.add(etq1);
             panelbotones.add(campo1);
             panelDeLaVentana.add(aux1);
             panelDeLaVentana.add(aux2);
+            panelDeLaVentana.add(aux4);
             panelDeLaVentana.add(panelbotones);
-            b1.addActionListener(new ActionListener(){
+            //hilos de aux
+            t = new Thread(new datarecivida());
+            capture =new Thread(new capturastabla());
+            comunica=new Thread(new comunicacion());
+            capture.start();
+            capture.suspend();
+            t.start();
+            t.suspend();
+            comunica.start();
+            comunica.suspend();
+            b1.addItemListener(new ItemListener(){
             //super();
-            public void actionPerformed(ActionEvent ee){
-                dat="Sen4=29";
-                try {
-                    t.start();
-                    capture.start();
-                    capture.suspend();
-                }catch(Exception e24){
-
-                }}});
-                /*puertos_libres = CommPortIdentifier.getPortIdentifiers();
-                int aux=0;
-                //t=new Thread(new datarecivida());
-                while (puertos_libres.hasMoreElements())
-                    {
-                     port = (CommPortIdentifier) puertos_libres.nextElement();
-                     int type = port.getPortType();
-                     if (port.getName().equals(campo1.getText()))
-                     {
-                            try {
-                                puerto_ser = (SerialPort) port.open(this.getClass().getName(), 2000);
-                                   int baudRate = 9600; // 9600bps
-                                   //configuracion de arduino
-                                    puerto_ser.setSerialPortParams(
-                                            baudRate,
-                                            SerialPort.DATABITS_8,
-                                            SerialPort.STOPBITS_1,
-                                            SerialPort.PARITY_NONE);
-                                    puerto_ser.setDTR(true);
-                 ////////////////////////////////////////////////////////////////
-                                    //out = puerto_ser.getOutputStream();//salida de java
-                                    in = new BufferedReader(new InputStreamReader(puerto_ser.getInputStream()));; // entrada de java
-                                    //t.start();
-                            } catch (  Exception e1) {
-                            }
-                         break;
-                     }}}*/
+            public void itemStateChanged(ItemEvent ee){
+            	int state1 = ee.getStateChange();
+                //dat="Sen4=29";
+                if (state1==ItemEvent.SELECTED){
+                	b1.setText("desconect");
+                	//
+                	t.suspend();
+                	System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
+                    //comunica.start();
+                    PORT_NAME=campo1.getText();
+            		CommPortIdentifier portId = null;
+            		Enumeration portEnum = CommPortIdentifier.getPortIdentifiers();
+            		while (portEnum.hasMoreElements()) {
+            			CommPortIdentifier currPortId = (CommPortIdentifier) portEnum.nextElement();
+            			if (currPortId.getName().equals(PORT_NAME)) {
+            				portId = currPortId;
+            				break;
+            			}
+            		}
+            		//System.out.println(portId);
+            		//System.out.println(portId.getName());
+            		if (portId == null) {
+            			System.out.println("no puertos.");
+            			//System.exit(ERROR);
+            			return;
+            		}
+            		else {
+            			System.out.println("conectado");
+            		}
+             
+            		try {
+            			// open serial port, and use class name for the appName.
+            			serialPort = (SerialPort) portId.open(this.getClass().getName(), 2000);
+            			// set port parameters
+            			int baudRate = 9600;
+            			serialPort.setSerialPortParams(baudRate,
+                                SerialPort.DATABITS_8,
+                                SerialPort.STOPBITS_1,
+                                SerialPort.PARITY_NONE);
+             
+            			// open the streams
+            			//output = serialPort.getOutputStream();
+            			//InputStream in = serialPort.getInputStream();
+            			 in=new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
+            			//comunica.start();
+            		} catch (Exception e) {
+            			System.err.println(e.getMessage());
+            			//System.exit(ERROR);
+            		}
+            		
+            		comunica.resume();
+            		//t.resume();
+                    //roll.setText(campo1.getText());  
+                    }
+                else {
+                	b1.setText("conectar");
+                	comunica.suspend();
+                	capture.suspend();
+                	t.resume();
+                	/**/
+                }
+                }
+                });
+            
+                /**/
             b2.addItemListener(new ItemListener(){
                public void itemStateChanged(ItemEvent e){
                     //AbstractButton abstractButton = (AbstractButton) e.getSource();
                     //boolean truue = abstractButton.getModel().isSelected();
                     //while(truue){
-                    int state = e.getStateChange();
-                    if (state==ItemEvent.SELECTED){
+                    int state2 = e.getStateChange();
+                    if (state2==ItemEvent.SELECTED){
                         b2.setText("parar");
                         capture.resume();
                     }
                     else{
                         //break;
-                        b2.setText("almacenar");
+                    	b2.setText("almacenar");
                         capture.suspend();
                     }
-                //}
-                //while(true){ 
-                    /*AbstractButton abstractButton = (AbstractButton) e.getSource();
-                    boolean selected = abstractButton.getModel().isSelected();
-                    System.out.println("Action - selected=" + selected + "\n");*/
-                    //System.out.println("botonb2");
-                    
-                    //Thread.sleep(100);
-
-                 //   }
                 }});
             b3.addActionListener(new ActionListener(){
-               public void actionPerformed(ActionEvent e1){
-                
-                
+               public void actionPerformed(ActionEvent e1){  
+            	capture.suspend();
             JFileChooser chooser = new JFileChooser();
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de excel", "xls");
             chooser.setFileFilter(filter);
@@ -316,51 +363,71 @@ public class trigo extends JFrame{
                 } catch (Exception e2) {
                     JOptionPane.showMessageDialog(null, "Hubo un error " + e2.getMessage(), " Error", JOptionPane.ERROR_MESSAGE);
                 }}
-    
-                
-                    System.out.println("interesante");
-                    //Thread.sleep(100);
-                 //   }
                 }});
     }
+        /*public void paintComponent(Graphics g) {
+        	//public void draw(){
+        	super.paintComponents(g);
+        	//aux4.paint(g);
+        	
+        	g = aux4.getGraphics();
+        	//Graphics2D g2d =(Graphics2D) g;
+        	
+        	//aux4.setBackground(new Color(107, 106, 104));
+        	g.setColor(Color.BLUE);
+            g.fillRect(0, 0, 100, 100);
+        	//g.setColor(Color.blue);
+            //g.fillRect(38, 250, 200, 500);
+            //aux4.repaint();
+        }*/
         
+        public class comunicacion implements Runnable{
+        	public void run() {
+        		while(true) {
+        		try {
+        			dat=in.readLine();
+        		}catch (Exception e1){
+        			System.err.println(e1.toString());
+                }
+        		String[] parts=dat.split("=");
+                String part1=parts[0];
+                String part2=parts[1];
+
+                if(part1.equalsIgnoreCase("sen1")){
+                    roll.setText(part2);
+                    }
+                if(part1.equalsIgnoreCase("sen2")){
+                    picth.setText(part2);
+                    }
+                if(part1.equalsIgnoreCase("sen3")){
+                    yao.setText(part2);
+                    }
+                if(part1.equalsIgnoreCase("sen4")){
+                    a.setText(part2);
+                    }
+                if(part1.equalsIgnoreCase("sen5")){
+                    b.setText(part2);
+                    }
+                if(part1.equalsIgnoreCase("sen6")){
+                    c.setText(part2);
+                    }
+                if(part1.equalsIgnoreCase("sen7")){
+                    h.setText(part2);
+                 }
+        		}
+        	}
+        }                
         public class datarecivida implements Runnable{
-        //public synchronized void serialEvent(SerialPortEvent oEvent) {
-
-            
-            //if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-            public void run(){
-                while(true){
-                try {
-                //dat=in.readLine();
-                String[] parts=dat.split("=");
-               String part1=parts[0];
-               String part2=parts[1];
-
-               if(part1.equalsIgnoreCase("Sen1")){
-                   roll.setText(part2);
-                   }
-               if(part1.equalsIgnoreCase("Sen2")){
-                   picth.setText(part2);
-                   }
-               if(part1.equalsIgnoreCase("Sen3")){
-                   yao.setText(part2);
-                   }
-               if(part1.equalsIgnoreCase("Sen4")){
-                   a.setText(part2);
-                   }
-               if(part1.equalsIgnoreCase("Sen5")){
-                   b.setText(part2);
-                   }
-               if(part1.equalsIgnoreCase("Sen6")){
-                   c.setText(part2);
-                   }
-               if(part1.equalsIgnoreCase("Sen7")){
-                   alt.setText(part2);
-                }
-            }catch (Exception e1){
-                }
-    }}}
+        	//String dat;//="sen2=267";
+        	public void run(){
+        		try {
+            		in.close();
+            	}catch(IOException e) {                		
+            	}
+            	serialPort.close();
+            	//t.suspend();
+            	
+    }}
 /*        public void listapuerto(){
             String lista="";
             lista +="Los puertos disponibles son:";
@@ -389,11 +456,11 @@ public class trigo extends JFrame{
                             }
         }
         public static void main(String[] arg){
-            trigo miAplicacion = new trigo();
+            ventafacil miAplicacion = new ventafacil();
             miAplicacion.setTitle("   Muestreo de sensor   ");
             miAplicacion.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             miAplicacion.setBounds(50,50,600,800);
             miAplicacion.pack();
             miAplicacion.setVisible(true);
         }
-} 
+}
