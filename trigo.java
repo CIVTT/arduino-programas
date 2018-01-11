@@ -1,3 +1,4 @@
+//novo----https://linuxgx.blogspot.pe/2014/06/recibir-datos-desde-arduino-utilizando.html
 //http://josedeveloper.com/2012/01/28/comunicacion-serial-java-y-arduino/
 //https://www.udoo.org/forum/threads/eclipse-with-udoobuntu-and-arduino-communication-tutorial.1512/
 //https://jonathanmelgoza.com/blog/comunicacion-serial-en-java/
