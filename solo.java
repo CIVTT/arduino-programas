@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.List;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -37,6 +36,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
+import javax.media.j3d.*;
+import javax.vecmath.*;
+import java.applet.*;
+import java.awt.*;
+import com.sun.j3d.utils.geometry.*;
+import com.sun.j3d.utils.universe.*;
+
 public class ventafacil extends JFrame{
     Enumeration puertos_libres;
     CommPortIdentifier port;
@@ -51,7 +57,7 @@ public class ventafacil extends JFrame{
         private static final int DATA_RATE = 9600;
         private String PORT_NAME;
         private JButton b3;
-        private JToggleButton b1,b2;
+        private JToggleButton b1,b2,b4;
         private JTextField campo1,roll,picth,yao;
         private JTextField a,b,c,h;
         private JLabel etq1;
@@ -65,8 +71,8 @@ public class ventafacil extends JFrame{
         private JMenuItem exit,exporta,limpiar;
         private JMenu port_com;
         Object[] objectaux= new Object[8];
-        Thread t,comunica;
-        Thread capture;
+        Thread t,comunica,animacion;
+        Thread capture,universe;
         private File files;
         DefaultTableModel modelo;
         String dat;
@@ -78,7 +84,7 @@ public class ventafacil extends JFrame{
             //listaport=CommPortIdentifier.getPortIdentifiers();
             //listapuerto();
             
-            String[] columnaprincipal={"roll","picth","yao","alpha","beta","gama","altura"};
+            String[] columnaprincipal={"Ax","Ay","Az","Gx","Gy","Gz","H"};
             Object[][] filas={};
             modelo = new DefaultTableModel(filas,columnaprincipal);
             tabla = new JTable (modelo);
@@ -92,16 +98,18 @@ public class ventafacil extends JFrame{
             b2.setBounds(400,5,130,30);
             b3=new JButton("exportar");
             b3.setBounds(600,5,100,30);
+            b4=new JToggleButton("show");
+            b4.setBounds(5,5,90,30);
             //Creamos las etiquetas
             etq1 = new JLabel("Puerto: ");
             etq1.setBounds(200,5,100,30);
-            etq_roll =new JLabel("roll: ");
-            etq_picth =new JLabel("picth: ");
-            etq_yao =new JLabel("yao: ");
-            eu_a=new JLabel("x: ");
-            eu_b=new JLabel("y: ");
-            eu_c=new JLabel("z: ");
-            alt=new JLabel("h: ");
+            etq_roll =new JLabel("ax: ");
+            etq_picth =new JLabel("ay: ");
+            etq_yao =new JLabel("az: ");
+            eu_a=new JLabel("Gx: ");
+            eu_b=new JLabel("Gy: ");
+            eu_c=new JLabel("Gz: ");
+            alt=new JLabel("ok: ");
             //campo de barra de menu
             menus =new JMenuBar();
             setJMenuBar(menus);
@@ -130,7 +138,7 @@ public class ventafacil extends JFrame{
                 List<JTable> tb = new ArrayList<JTable>();
                 List<String> nom = new ArrayList<String>();
                 tb.add(tabla);
-                nom.add("Compras por factura");
+                nom.add("muestreo de sensor");
                 String file = chooser.getSelectedFile().toString().concat(".xls");
                 try {
                     Exporter e2 = new Exporter(new File(file), tb, nom);
@@ -205,17 +213,25 @@ public class ventafacil extends JFrame{
             aux2.setLayout(new BoxLayout(aux2, BoxLayout.X_AXIS));
             //tabla.setBounds(10,10,600,190);
             //aux2.setBackground(Color.GREEN);
-            aux4=new JPanel() {
+            aux3=new JPanel();
+            aux3.setBounds(480,450,100,100);
+            aux3.setLayout(null);
+            aux4=new JPanel(){
             	public void paintComponent(Graphics g) {
                     super.paintComponent(g);
-                    //g.setColor(Color.BLUE);
-                    //g.fillRect(0, 0, 100, 100);
+                    g.setColor(Color.BLUE);
+                    g.fillRect(0, 0, 10, 10);
+                    g.fillRect(40,20,90,5);
                     g.setColor(Color.blue);
-                    //g.draw
-                    g.fillRect(2, 0, 20, 50);
+                    g.fillRect(80,20,10,60);
+                    g.setColor(Color.black);
+                    g.fillArc(80,15,10,10,0,360);
+                    //g.fillRect(2, 0, 20, 50);
+                    
                 }
             };
-            aux4.setBounds(350,450,400,200);
+            //VirtualUniverse mundo = new VirtualUniverse();           
+            aux4.setBounds(625,450,300,300);
             //aux4.setBackground(new Color(107, 106, 104));
             
             //g.setColor(Color.blue);
@@ -237,6 +253,7 @@ public class ventafacil extends JFrame{
             aux2.add(tabla);
             aux2.add(scrollpane);
             aux2.setVisible(true);
+            aux3.add(b4);
             scrollpane.setViewportView (tabla);
             panelbotones.add(b1);
             panelbotones.add(b2);
@@ -246,9 +263,11 @@ public class ventafacil extends JFrame{
             panelbotones.add(campo1);
             panelDeLaVentana.add(aux1);
             panelDeLaVentana.add(aux2);
+            panelDeLaVentana.add(aux3);
             panelDeLaVentana.add(aux4);
             panelDeLaVentana.add(panelbotones);
             //hilos de aux
+            universe=new Thread(new graf());
             t = new Thread(new datarecivida());
             capture =new Thread(new capturastabla());
             comunica=new Thread(new comunicacion());
@@ -258,6 +277,11 @@ public class ventafacil extends JFrame{
             t.suspend();
             comunica.start();
             comunica.suspend();
+            universe.start();
+            universe.suspend();
+            animacion=new Thread(new animation());
+            animacion.start();
+            //System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
             b1.addItemListener(new ItemListener(){
             //super();
             public void itemStateChanged(ItemEvent ee){
@@ -267,7 +291,7 @@ public class ventafacil extends JFrame{
                 	b1.setText("desconect");
                 	//
                 	t.suspend();
-                	System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
+                		System.setProperty("gnu.io.rxtx.SerialPorts", "/dev/ttyACM0");
                     //comunica.start();
                     PORT_NAME=campo1.getText();
             		CommPortIdentifier portId = null;
@@ -307,7 +331,7 @@ public class ventafacil extends JFrame{
             			//comunica.start();
             		} catch (Exception e) {
             			System.err.println(e.getMessage());
-            			//System.exit(ERROR);
+            			//,System.exit(ERROR);
             		}
             		
             		comunica.resume();
@@ -319,6 +343,7 @@ public class ventafacil extends JFrame{
                 	comunica.suspend();
                 	capture.suspend();
                 	t.resume();
+                	//dat.flush();
                 	/**/
                 }
                 }
@@ -363,6 +388,18 @@ public class ventafacil extends JFrame{
                 } catch (Exception e2) {
                     JOptionPane.showMessageDialog(null, "Hubo un error " + e2.getMessage(), " Error", JOptionPane.ERROR_MESSAGE);
                 }}
+                }});
+            
+            b4.addItemListener(new ItemListener(){
+               public void itemStateChanged(ItemEvent e){
+                    int state2 = e.getStateChange();
+                    if (state2==ItemEvent.SELECTED){
+                        universe.start();
+                    }
+                    else{
+                        //break;
+                    	universe.suspend();
+                    }
                 }});
     }
         /*public void paintComponent(Graphics g) {
@@ -428,6 +465,24 @@ public class ventafacil extends JFrame{
             	//t.suspend();
             	
     }}
+        public class animation implements Runnable{
+        	public void run() {
+        		
+        	}
+        }
+        public class graf implements Runnable{
+        	public void run() {
+        		GraphicsConfiguration config =SimpleUniverse.getPreferredConfiguration();
+        		Canvas3D canvas = new Canvas3D(config);
+        		//aux4.add(canvas);
+        		BranchGroup contents = new BranchGroup();
+        		contents.addChild(new ColorCube(0.3));
+        		SimpleUniverse universe = new SimpleUniverse(canvas);
+        		universe.getViewingPlatform().setNominalViewingTransform();
+        		universe.addBranchGraph(contents); 
+        	}
+        	
+        }
 /*        public void listapuerto(){
             String lista="";
             lista +="Los puertos disponibles son:";
@@ -448,7 +503,7 @@ public class ventafacil extends JFrame{
                                 objectaux[5]=c.getText();
                                 objectaux[6]=h.getText();
                                 modelo.addRow(objectaux);
-                                capture.sleep(20);
+                                capture.sleep(100);
                             }catch(Exception e3){
                                 //System.out.println("look");
                             }
