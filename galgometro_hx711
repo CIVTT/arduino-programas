@@ -1,0 +1,36 @@
+/*Programa hx711 con galga para feather
+  prueba 1
+  por Victor Humberto
+*/  
+#include "HX711.h"
+
+#define DOUT  19
+#define SCK  18
+
+HX711 balanza;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.print("Lectura del valor del ADC:  ");
+  balanza.begin(DOUT,SCK);
+  Serial.println("No ponga ningun  objeto sobre la balanza");
+  Serial.println("Destarando...");
+  Serial.println("Coloque un peso conocido:");
+  
+}
+
+
+void loop() {
+  if (balanza.is_ready()) {
+    long reading = balanza.read();
+    int scalerr=16600/20000;
+    float valor=reading*scalerr;
+    Serial.print("valor del sensor: ");
+    Serial.println(valor);
+  } else {
+    Serial.println("HX711 no responde");
+  }
+
+  delay(1000);
+ 
+}
